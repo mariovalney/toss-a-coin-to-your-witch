@@ -1,15 +1,11 @@
 import React, { Component } from 'react';
-import {
-  Animated,
-  Dimensions,
-  PanResponder,
-  StyleSheet,
-  Text,
-  View
-} from "react-native";
+import { Animated, Dimensions, PanResponder, Text, View } from 'react-native';
+
 
 const CIRCLE_RADIUS = 30;
-const styles = StyleSheet.create({
+const CIRCLE_DIAMETER = 2 * CIRCLE_RADIUS;
+
+const styles = {
   circle: {
     backgroundColor: '#FFDF00',
     width: CIRCLE_RADIUS * 2,
@@ -22,74 +18,83 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 3,
-    borderColor: '#DAA520'
+    borderColor: '#DAA520',
+    zIndex: 9
   },
   text: {
     fontSize: 30,
     color: '#DAA520',
     paddingBottom: 4
   }
-});
+};
+
+const Screen = { height, width } = Dimensions.get('window');
 
 class Coin extends Component {
-  _previousTop = 30
-  _previousLeft = (Dimensions.get('window').width / 2 ) - CIRCLE_RADIUS
+  previousX = 30
+  previousY = (Screen.width / 2 ) - CIRCLE_RADIUS
 
-  state = {
-    top: this._previousTop,
-    left: this._previousLeft,
-    pressed: false
-  }
+  constructor(props) {
+    super(props);
 
-  _handleStartShouldSetPanResponder = (event, gestureState) => {
-    return true;
-  }
+    this.state = {
+      top: this.previousX,
+      left: this.previousY
+    };
 
-  _handleMoveShouldSetPanResponder = (event, gestureState) => {
-    return true;
-  }
-
-  _handlePanResponderGrant = (event, gestureState) => {
-    this.setState({
-      pressed: true,
+    this.panResponder = PanResponder.create({
+      onStartShouldSetPanResponder: (evt, gestureState) => true,
+      onMoveShouldSetPanResponder: (evt, gestureState) => true,
+      onPanResponderGrant: this.startToDrag,
+      onPanResponderMove: this.onMove,
+      onPanResponderRelease: this.endToDrag,
+      onPanResponderTerminate: this.endToDrag,
     });
   }
 
-  _handlePanResponderMove = (event, gestureState) => {
-    this.setState({
-      left: this._previousLeft + gestureState.dx,
-      top: this._previousTop + gestureState.dy,
-    });
+  onMove = (event, gestureState) => {
+    let top = this.previousX + gestureState.dy;
+    let left = this.previousY + gestureState.dx;
+
+    // Check for edges
+    if (top < 0) {
+      top = 0;
+    }
+
+    if (top > height - CIRCLE_DIAMETER) {
+      top = height - CIRCLE_DIAMETER;
+    }
+
+    if (left < 0) {
+      left = 0;
+    }
+
+    if (left > width - CIRCLE_DIAMETER) {
+      left = width - CIRCLE_DIAMETER;
+    }
+
+    // Update position
+    this.setState({top: top, left: left});
+
+    if (this.props.onMove) {
+      this.props.onMove(top, left);
+    }
   }
 
-  _handlePanResponderEnd = (event, gestureState) => {
-    this.setState({
-      pressed: false,
-    });
-
-    this._previousLeft += gestureState.dx;
-    this._previousTop += gestureState.dy;
+  endToDrag = (event, gestureState) => {
+    this.previousX += gestureState.dy;
+    this.previousY += gestureState.dx;
   }
-
-  _panResponder = PanResponder.create({
-    onStartShouldSetPanResponder: this._handleStartShouldSetPanResponder,
-    onMoveShouldSetPanResponder: this._handleMoveShouldSetPanResponder,
-    onPanResponderGrant: this._handlePanResponderGrant,
-    onPanResponderMove: this._handlePanResponderMove,
-    onPanResponderRelease: this._handlePanResponderEnd,
-    onPanResponderTerminate: this._handlePanResponderEnd,
-  });
 
   render() {
     const panStyle = {
       translateY: this.state.top,
-      translateX: this.state.left,
-      backgroundColor: this.state.pressed ? 'blue' : 'green',
+      translateX: this.state.left
     };
 
     return (
       <Animated.View
-        {...this._panResponder.panHandlers}
+        {...this.panResponder.panHandlers}
         style={[panStyle, styles.circle]}
       >
         <Text style={styles.text}>$</Text>
