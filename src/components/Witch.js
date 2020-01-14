@@ -19,7 +19,7 @@ const styles = {
 const Screen = { height } = Dimensions.get('window');
 
 class Witch extends Component {
-  static HEIGHT_PORTION = 5
+  static HEIGHT_PORTION = 3
 
   constructor(props) {
     super(props);

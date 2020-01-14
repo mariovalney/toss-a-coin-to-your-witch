@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Dimensions, Text, View } from 'react-native';
+import { Dimensions, ImageBackground } from 'react-native';
 
 import Coin from '../components/Coin';
 import Witch from '../components/Witch';
@@ -28,11 +28,11 @@ class HomeScreen extends Component {
 
   render() {
     return (
-      <View style={{ height: '100%', width: '100%' }}>
+      <ImageBackground style={{ height: '100%', width: '100%' }} source={ require('../images/background.jpg') }>
         <Coin onMove={ this.onMove }/>
         { this.state.witch === 'happy' && <Witch happy /> }
         { this.state.witch === 'waiting' && <Witch /> }
-      </View>
+      </ImageBackground>
     );
   }
 }
