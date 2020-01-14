@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Dimensions, Text, View } from 'react-native';
+import { Dimensions, Image, View } from 'react-native';
 
 const styles = {
   witch: {
@@ -9,6 +9,10 @@ const styles = {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center'
+  },
+  image: {
+    flex: 1,
+    resizeMode: 'contain'
   }
 };
 
@@ -20,20 +24,16 @@ class Witch extends Component {
   constructor(props) {
     super(props);
 
-    this.happyStyle = {
-      display: this.props.happy ? 'flex' : 'none'
-    }
+    const sourceHappy = require('../images/happy.png');
+    const sourceWaiting = require('../images/waiting.png');
 
-    this.waitingStyle = {
-      display: ! this.props.happy ? 'flex' : 'none'
-    }
+    this.image = this.props.happy ? sourceHappy : sourceWaiting;
   }
 
   render() {
     return (
       <View style={ [{ 'height': Screen.height / Witch.HEIGHT_PORTION }, styles.witch] }>
-        <Text style={ this.waitingStyle }>Waiting</Text>
-        <Text style={ this.happyStyle }>Happy</Text>
+        <Image source={ this.image } style={ styles.image } />
       </View>
     );
   }
